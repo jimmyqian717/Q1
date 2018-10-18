@@ -22,7 +22,7 @@ class PlayingField extends JPanel implements ActionListener{
     private int SIZE = 52;
     private Patch[][] grid = new Patch[SIZE][SIZE];
     
-    private double alpha; // defection award factor
+    private double alpha = 0.5; // defection award factor
     
     private Timer timer;
     
@@ -58,13 +58,13 @@ class PlayingField extends JPanel implements ActionListener{
             for (int y = 0; y < SIZE; y ++){
                 xCoord = x * rectSize;
                 yCoord = y * rectSize;
-                /*if (x == 0 || y == 0 || x == 51 || y == 51){
+                if (x == 0 || y == 0 || x == 51 || y == 51){
                     color = color.BLACK;                   
-                }*/
-                //else{
+                }
+               else{
                     if (currGrid[x][y] == true) color = Color.BLUE;
                     else if (currGrid[x][y] == false) color = color.RED;
-                //}
+                }
                 g.setColor(color);
                 g.fillRect(xCoord, yCoord, rectSize, rectSize);
             }
@@ -90,18 +90,30 @@ class PlayingField extends JPanel implements ActionListener{
      */
     public void step( ) {
         //...
-        // 1 second interval delay 
-        timer = new Timer(1000, this);
-        timer.start();
+        for (int x = 1; x < SIZE - 1; x ++){
+            for (int y = 1; y < SIZE - 1; y ++){
+                addNeighbours(x,y);
+            }
+        }
+        calculateScore();
+        for (int x = 1; x < SIZE - 1; x ++){
+            for (int y = 1; y < SIZE - 1; y ++){
+                grid[x][y].changeStrategy();
+            }
+        }
+        revalidate();
+        repaint();
     }
+
     
     public void setAlpha( double alpha ) {
         //...
+        this.alpha = alpha;
     }
     
     public double getAlpha( ) {
         //...
-        return 0.0; // CHANGE THIS
+        return this.alpha; // CHANGE THIS
     }
     
     // return grid as 2D array of booleans
@@ -148,11 +160,14 @@ class PlayingField extends JPanel implements ActionListener{
         }
     }
     
-    // calculate score of the current round.
+    // calculate score of the current round for each individual player
+    Patch currPlayer;
     public void calculateScore(){
         for (int x = 1; x < SIZE; x ++){
             for (int y = 1; y < SIZE; y ++){
-                grid[x][y].setScore(grid[x][y].getNeighbours());
+                currPlayer = grid[x][y];
+                currPlayer.setScore(currPlayer.isCooperating(),currPlayer.getNeighbours(),getAlpha());
+                System.out.println("x: " + x + ", y: " + y + ", Score: " + grid[x][y].getScore());
             }
         }
     }
@@ -167,11 +182,7 @@ class PlayingField extends JPanel implements ActionListener{
                 break;
             case "Go":
                 System.out.println("Go");
-                for (int x = 1; x < SIZE - 1; x ++){
-                    for (int y = 1; y < SIZE - 1; y ++){
-                        addNeighbours(x,y);
-                    }
-                }
+                step();
 
                 break;
             case "Pause":

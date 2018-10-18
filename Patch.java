@@ -10,14 +10,16 @@
  */
 package prisonersdilemma;
 
+import java.util.*;
 class Patch {
     //...
     private char strat;
-    private int score;
-    
+    private int score = 0;
+    ArrayList<Patch> neighbours = new ArrayList<>();
     Patch(char strat){
         this.strat = strat;
     }
+
     // returns true if and only if patch is cooperating
     boolean isCooperating() {
         //...
@@ -37,9 +39,33 @@ class Patch {
         // ...
     }
     
+    void setScore(int score){
+        this.score = score;
+    }
     // return score of this patch in current round
     double getScore() {
         //...
-        return 0.0; // CHANGE THIS
+        
+        return this.score;
+    }
+    
+    // add neighbours'strats to arraylist
+    void setNeighbours(Patch neighbour){
+        this.neighbours.add(neighbour);
+    }
+    
+    // show neighbours'strats
+    int counter = 0;
+    int getNeighbours(){
+        for (Patch neighbour: neighbours){
+            System.out.println(neighbour.strat);
+            if (neighbour.strat == 'C') counter ++;
+        }
+        return counter;
+    }
+    
+    // show this patch's current strat
+    char getStrat(){
+        return this.strat;
     }
 }
